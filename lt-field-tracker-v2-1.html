@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Larsen &amp; Toubro — फील्ड विज़िट रजिस्टर</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B3D62;
+    --navy-deep:#082C47;
+    --orange:#E8871E;
+    --bg:#F4F3EF;
+    --surface:#FFFFFF;
+    --ink:#171C20;
+    --ink-soft:#5B6670;
+    --line:#D8D3C7;
+    --danger:#B3462B;
+    --success:#2F6F52;
+    --warn:#B9862A;
+    --radius:4px;
+    --mono:'JetBrains Mono',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0E1318;
+      --surface:#161C22;
+      --ink:#EDEFF0;
+      --ink-soft:#8E99A1;
+      --line:#2A333B;
+      --navy:#4E90BE;
+      --navy-deep:#356E97;
+      --orange:#F0975A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1318; --surface:#161C22; --ink:#EDEFF0; --ink-soft:#8E99A1;
+    --line:#2A333B; --navy:#4E90BE; --navy-deep:#356E97; --orange:#F0975A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Noto Sans Devanagari','Noto Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:78px;
+  }
+  .mono{font-family:var(--mono);}
+  header.top{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:16px 16px 14px;
+    border-bottom:3px solid var(--orange);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+  header.top .brand-block .brand{
+    font-size:11px; letter-spacing:.06em; opacity:.8; font-weight:600;
+  }
+  header.top .brand-block h1{
+    margin:2px 0 0; font-size:18px; font-weight:700; line-height:1.3;
+  }
+  .user-chip{
+    display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0;
+  }
+  .role-badge{
+    font-size:10.5px; font-weight:700; letter-spacing:.03em;
+    padding:2px 9px; border-radius:3px;
+    background:var(--orange); color:#20140a;
+  }
+  .role-badge.admin{background:#F0D24B; color:#332701;}
+  .user-name{font-size:12px; opacity:.95;}
+  .logout-btn{
+    font-size:11px; background:none; border:1px solid rgba(255,255,255,.4);
+    color:#fff; padding:3px 10px; border-radius:3px; cursor:pointer;
+  }
+  main{max-width:680px; margin:0 auto; padding:14px 12px 10px;}
+
+  /* ---------- AUTH SCREEN ---------- */
+  #auth-screen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:24px 16px; background:var(--bg);
+  }
+  .auth-card{
+    width:100%; max-width:360px; background:var(--surface);
+    border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px 22px; border-top:4px solid var(--orange);
+  }
+  .auth-card .abrand{font-size:11px; letter-spacing:.08em; color:var(--ink-soft); font-weight:700;}
+  .auth-card h2{margin:6px 0 18px; font-size:19px; font-weight:700; color:var(--navy-deep);}
+  :root[data-theme="dark"] .auth-card h2{color:var(--orange);}
+  @media (prefers-color-scheme:dark){ .auth-card h2{color:var(--orange);} }
+  .role-toggle{
+    display:flex; border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; margin-bottom:16px;
+  }
+  .role-toggle button{
+    flex:1; padding:9px 6px; background:var(--bg); border:none; cursor:pointer;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--ink-soft);
+    border-right:1px solid var(--line);
+  }
+  .role-toggle button:last-child{border-right:none;}
+  .role-toggle button.active{background:var(--navy); color:#fff;}
+  .auth-field{margin-bottom:12px;}
+  .auth-field label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:4px;}
+  .auth-field input{
+    width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--bg); color:var(--ink); font-size:14px; font-family:inherit;
+  }
+  .auth-submit{
+    width:100%; padding:11px; background:var(--navy); color:#fff; border:none;
+    border-radius:var(--radius); font-size:14.5px; font-weight:700; cursor:pointer; margin-top:6px;
+  }
+  .auth-error{
+    font-size:12.5px; color:var(--danger); margin-top:10px; min-height:1px;
+  }
+  .auth-hint{font-size:11.5px; color:var(--ink-soft); margin-top:14px; line-height:1.6; text-align:center;}
+
+  /* ---------- shared ---------- */
+  .summary-row{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .summary-card{
+    flex:1; min-width:100px; background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius); padding:10px 12px;
+  }
+  .summary-card .num{font-size:22px; font-weight:800; color:var(--navy); font-family:var(--mono);}
+  :root[data-theme="dark"] .summary-card .num{color:var(--orange);}
+  @media (prefers-color-scheme:dark){ .summary-card .num{color:var(--orange);} }
+  .summary-card .lbl{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  h2.section-title{
+    font-size:14px; font-weight:700; margin:16px 2px 8px; color:var(--ink);
+    display:flex; align-items:center; gap:7px; text-transform:none;
+    border-bottom:1px solid var(--line); padding-bottom:6px;
+  }
+  select.agent-filter{
+    width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--surface); color:var(--ink); font-size:13.5px; font-family:inherit; margin-bottom:12px;
+  }
+  .village-group{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:10px; overflow:hidden;
+  }
+  .village-head{
+    display:flex; justify-content:space-between; align-items:center; padding:9px 12px;
+    background:rgba(232,135,30,0.08); border-bottom:1px solid var(--line);
+  }
+  .village-head .vname{font-weight:700; font-size:13.5px; color:var(--navy-deep);}
+  :root[data-theme="dark"] .village-head .vname{color:var(--orange);}
+  @media (prefers-color-scheme:dark){ .village-head .vname{color:var(--orange);} }
+  .village-head .vcount{
+    font-size:11.5px; background:var(--orange); color:#20140a; padding:2px 8px; border-radius:3px; font-weight:700;
+  }
+  .person-card{
+    padding:10px 12px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:8px; align-items:flex-start;
+  }
+  .person-card:last-child{border-bottom:none;}
+  .person-card .pname{font-weight:700; font-size:13.5px;}
+  .person-card .agent-tag{font-size:10.5px; color:var(--ink-soft); font-weight:400;}
+  .person-card .pmeta{font-size:12px; color:var(--ink-soft); margin-top:3px; line-height:1.55;}
+  .amt{font-family:var(--mono); font-weight:600;}
+  .loan-tag{font-size:11px; background:rgba(179,70,43,0.12); color:var(--danger); padding:1px 7px; border-radius:3px; font-weight:700; white-space:nowrap;}
+  .status-tag{font-size:10.5px; padding:2px 8px; border-radius:3px; font-weight:700; white-space:nowrap;}
+  .status-paid{background:rgba(47,111,82,.14); color:var(--success);}
+  .status-unpaid{background:rgba(179,70,43,.14); color:var(--danger);}
+  .status-closed{background:rgba(91,102,112,.14); color:var(--ink-soft);}
+  .status-resched{background:rgba(185,134,42,.15); color:var(--warn);}
+  .call-btn{
+    display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px;
+    border-radius:3px; background:var(--navy); color:#fff; text-decoration:none; font-size:13px; flex-shrink:0;
+  }
+  .empty-state{
+    text-align:center; padding:26px 14px; color:var(--ink-soft); font-size:13px;
+    background:var(--surface); border:1px dashed var(--line); border-radius:var(--radius);
+  }
+  form.entry-form{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:5px;}
+  .field input, .field textarea, .field select{
+    width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--bg); color:var(--ink); font-size:14px; font-family:inherit;
+  }
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:9px;}
+  .submit-btn{
+    width:100%; padding:11px; background:var(--navy); color:#fff; border:none; border-radius:var(--radius);
+    font-size:14.5px; font-weight:700; cursor:pointer; margin-top:2px;
+  }
+  .submit-btn:disabled{opacity:.6;}
+  .search-bar{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--surface); color:var(--ink); font-size:13.5px; margin-bottom:12px;
+  }
+  .list-row{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:11px 12px; margin-bottom:8px; display:flex; justify-content:space-between; gap:8px;
+  }
+  .list-row .info .name-line{font-weight:700; font-size:13.5px;}
+  .list-row .info .meta-line{font-size:11.5px; color:var(--ink-soft); margin-top:4px; line-height:1.55;}
+  .row-actions{display:flex; gap:5px; flex-shrink:0; align-items:flex-start;}
+  .icon-btn{
+    border:1px solid var(--line); background:var(--bg); color:var(--ink-soft); width:29px; height:29px;
+    border-radius:3px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px;
+  }
+  .icon-btn.danger{color:var(--danger);}
+  nav.tabbar{
+    position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--line);
+    display:flex; padding:5px 5px calc(5px + env(safe-area-inset-bottom)); z-index:10;
+  }
+  nav.tabbar button{
+    flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:7px 3px; color:var(--ink-soft); font-family:inherit; font-size:10.8px; font-weight:600; cursor:pointer; border-radius:3px;
+  }
+  nav.tabbar button.active{color:var(--navy); background:rgba(232,135,30,0.10);}
+  :root[data-theme="dark"] nav.tabbar button.active{color:var(--orange);}
+  @media (prefers-color-scheme:dark){ nav.tabbar button.active{color:var(--orange);} }
+  nav.tabbar button .ic{font-size:17px;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .hint{font-size:11.5px; color:var(--ink-soft); margin:-7px 0 12px 1px;}
+  .toast{
+    position:fixed; bottom:88px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--navy-deep); color:#fff; padding:9px 16px; border-radius:3px; font-size:12.5px; font-weight:600;
+    opacity:0; transition:.25s; pointer-events:none; z-index:20; white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  a{color:inherit;}
+  .agent-row{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:11px 12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;
+  }
+  .agent-row .aname{font-weight:700; font-size:13.5px;}
+  .agent-row .ameta{font-size:11.5px; color:var(--ink-soft); margin-top:3px;}
+  .agent-row .astatus{font-size:10.5px; padding:2px 8px; border-radius:3px; font-weight:700;}
+  .astatus.active{background:rgba(47,111,82,.14); color:var(--success);}
+  .astatus.inactive{background:rgba(179,70,43,.14); color:var(--danger);}
+  .toggle-btn{font-size:11px; padding:5px 10px; border-radius:3px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer;}
+  #hidden-shell{display:none;}
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH SCREEN ================= -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="abrand">LARSEN &amp; TOUBRO</div>
+    <h2 id="auth-title">फील्ड विज़िट रजिस्टर — लॉगिन</h2>
+
+    <div class="role-toggle" id="role-toggle">
+      <button type="button" class="active" data-role="agent">एजेंट</button>
+      <button type="button" data-role="admin">एडमिन</button>
+    </div>
+
+    <form id="login-form">
+      <div class="auth-field">
+        <label>ईमेल</label>
+        <input type="email" id="auth-email" required autocomplete="username">
+      </div>
+      <div class="auth-field">
+        <label>पासवर्ड</label>
+        <input type="password" id="auth-password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="auth-submit" id="auth-submit-btn">लॉगिन करें</button>
+      <div class="auth-error" id="auth-error"></div>
+    </form>
+    <div class="auth-hint">एजेंट अकाउंट सिर्फ़ एडमिन बना सकता है।<br>अपना ईमेल/पासवर्ड भूल गए तो एडमिन से संपर्क करें।</div>
+  </div>
+</div>
+
+<!-- ================= APP SHELL ================= -->
+<div id="hidden-shell">
+<header class="top">
+  <div class="brand-block">
+    <div class="brand">LARSEN &amp; TOUBRO</div>
+    <h1>फील्ड विज़िट रजिस्टर</h1>
+  </div>
+  <div class="user-chip">
+    <span class="role-badge" id="role-badge-el">—</span>
+    <span class="user-name" id="user-name-el"></span>
+    <button class="logout-btn" id="logout-btn">लॉगआउट</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- TODAY VIEW -->
+  <section class="view active" id="view-today">
+    <select class="agent-filter" id="agent-filter-today" style="display:none;"></select>
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="num" id="today-people-count">0</div>
+        <div class="lbl">आज मिलने वाले लोग</div>
+      </div>
+      <div class="summary-card">
+        <div class="num" id="today-village-count">0</div>
+        <div class="lbl">आज के गाँव</div>
+      </div>
+      <div class="summary-card">
+        <div class="num mono" id="today-emi-total">₹0</div>
+        <div class="lbl">आज की कुल EMI</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">📍 आज का प्लान — <span id="today-date-label"></span></h2>
+    <div id="today-groups"></div>
+
+    <h2 class="section-title">🗓️ आगे की मुलाक़ातें</h2>
+    <div id="upcoming-groups"></div>
+  </section>
+
+  <!-- ADD VIEW -->
+  <section class="view" id="view-add">
+    <h2 class="section-title">➕ नई एंट्री जोड़ें</h2>
+    <form class="entry-form" id="entry-form">
+      <input type="hidden" id="edit-id">
+      <div class="field">
+        <label>नाम *</label>
+        <input type="text" id="f-name" placeholder="जैसे: रामलाल यादव" required>
+      </div>
+      <div class="field">
+        <label>पिता का नाम</label>
+        <input type="text" id="f-father" placeholder="जैसे: श्याम लाल यादव">
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>गाँव *</label>
+          <input type="text" id="f-village" placeholder="गाँव का नाम" required>
+        </div>
+        <div class="field">
+          <label>मोबाइल नंबर</label>
+          <input type="tel" id="f-mobile" placeholder="10 अंक" maxlength="15">
+        </div>
+      </div>
+      <div class="field">
+        <label>पता / लोकैलिटी</label>
+        <input type="text" id="f-address" placeholder="मकान नंबर, मोहल्ला आदि">
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>पति / पत्नी का नाम</label>
+          <input type="text" id="f-spouse" placeholder="वैकल्पिक">
+        </div>
+        <div class="field">
+          <label>कितने लोन चल रहे हैं</label>
+          <input type="number" id="f-loans" min="0" placeholder="0">
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>लोन राशि (₹)</label>
+          <input type="number" id="f-loan-amount" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>मासिक EMI (₹)</label>
+          <input type="number" id="f-emi" min="0" placeholder="0">
+        </div>
+      </div>
+      <div class="field">
+        <label>विज़िट स्टेटस</label>
+        <select id="f-status">
+          <option value="pending">तय है — अभी जाना है</option>
+          <option value="paid">मुलाकात हुई — भुगतान मिला</option>
+          <option value="unpaid">मुलाकात हुई — भुगतान नहीं मिला</option>
+          <option value="closed">मुलाकात नहीं हुई — घर बंद</option>
+          <option value="resched">अगली तारीख तय हुई</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>कब मिलने बुलाया है (तारीख) *</label>
+        <input type="date" id="f-date" required>
+        <div class="hint">यही तारीख "आज का प्लान" में दिखाएगी</div>
+      </div>
+      <div class="field">
+        <label>टिप्पणी</label>
+        <textarea id="f-notes" rows="2" placeholder="कोई खास बात, समय आदि"></textarea>
+      </div>
+      <button type="submit" class="submit-btn" id="submit-btn">सेव करें</button>
+    </form>
+  </section>
+
+  <!-- LIST VIEW -->
+  <section class="view" id="view-list">
+    <select class="agent-filter" id="agent-filter-list" style="display:none;"></select>
+    <h2 class="section-title">📋 सभी रिकॉर्ड</h2>
+    <input type="text" class="search-bar" id="search-input" placeholder="नाम, गाँव या मोबाइल नंबर से खोजें...">
+    <div id="all-list"></div>
+  </section>
+
+  <!-- AGENTS VIEW (admin only) -->
+  <section class="view" id="view-agents">
+    <h2 class="section-title">👥 नया एजेंट बनाएं</h2>
+    <form class="entry-form" id="agent-form" style="margin-bottom:18px;">
+      <div class="field">
+        <label>एजेंट का नाम *</label>
+        <input type="text" id="a-name" required>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>ईमेल *</label>
+          <input type="email" id="a-email" required>
+        </div>
+        <div class="field">
+          <label>पासवर्ड *</label>
+          <input type="text" id="a-password" placeholder="कम से कम 6 अंक" minlength="6" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>क्षेत्र / गाँव (वैकल्पिक)</label>
+        <input type="text" id="a-area" placeholder="जैसे: रामपुर क्षेत्र">
+      </div>
+      <button type="submit" class="submit-btn" id="agent-submit-btn">एजेंट बनाएं</button>
+      <div class="auth-error" id="agent-form-error"></div>
+    </form>
+
+    <h2 class="section-title">📇 सभी एजेंट</h2>
+    <div id="agents-list"></div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<nav class="tabbar">
+  <button class="tab-btn active" data-view="today"><span class="ic">🏠</span>आज</button>
+  <button class="tab-btn" data-view="add"><span class="ic">➕</span>जोड़ें</button>
+  <button class="tab-btn" data-view="list"><span class="ic">📋</span>सूची</button>
+  <button class="tab-btn" data-view="agents" id="tab-agents" style="display:none;"><span class="ic">👥</span>एजेंट</button>
+</nav>
+</div><!-- /hidden-shell -->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc,
+  onSnapshot, query, orderBy, where, enableIndexedDbPersistence
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+(function(){
+
+  var firebaseConfig = {
+    apiKey: "AIzaSyD_StVh19bV4UwXJvgwhMGIk8qyvbRk_OY",
+    authDomain: "manas-credit-finance.firebaseapp.com",
+    projectId: "manas-credit-finance",
+    storageBucket: "manas-credit-finance.firebasestorage.app",
+    messagingSenderId: "907041026341",
+    appId: "1:907041026341:web:e2726b39577ab9992a2acc",
+    measurementId: "G-QLVSDD0S9L"
+  };
+
+  // Primary app: normal session (whoever is logged in right now)
+  var app = initializeApp(firebaseConfig);
+  var auth = getAuth(app);
+  var db = getFirestore(app);
+
+  // Secondary app: used only so that "create agent" doesn't hijack the admin's session
+  var secondaryApp = initializeApp(firebaseConfig, "Secondary");
+  var secondaryAuth = getAuth(secondaryApp);
+
+  try{
+    enableIndexedDbPersistence(db).catch(function(e){ console.warn("ऑफ़लाइन कैश:", e.code); });
+  }catch(e){ /* ignore */ }
+
+  var visitsCol = collection(db, "visits");
+  var usersCol = collection(db, "users");
+
+  var currentUser = null;   // {uid,email,name,role,area}
+  var entries = [];
+  var agentsDirectory = []; // list of agent profiles (for admin filter + agent view)
+  var firstSnapshotReceived = false;
+  var unsubscribeVisits = null;
+  var unsubscribeAgents = null;
+  var selectedAgentFilter = "all";
+
+  function showToast(msg){
+    var t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("show");
+    setTimeout(function(){ t.classList.remove("show"); }, 1900);
+  }
+  function escapeHTML(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function todayISO(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function formatDateHuman(iso){
+    if(!iso) return "";
+    var p = iso.split("-");
+    var d = new Date(p[0], p[1]-1, p[2]);
+    var days = ["रविवार","सोमवार","मंगलवार","बुधवार","गुरुवार","शुक्रवार","शनिवार"];
+    var months = ["जन","फ़र","मार्च","अप्रैल","मई","जून","जुलाई","अग","सित","अक्टू","नव","दिस"];
+    return days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()];
+  }
+  function fmtMoney(n){
+    n = Number(n)||0;
+    return "₹"+n.toLocaleString("en-IN");
+  }
+  function statusLabel(s){
+    switch(s){
+      case "paid": return {cls:"status-paid", text:"भुगतान मिला"};
+      case "unpaid": return {cls:"status-unpaid", text:"भुगतान नहीं मिला"};
+      case "closed": return {cls:"status-closed", text:"घर बंद"};
+      case "resched": return {cls:"status-resched", text:"अगली तारीख तय"};
+      default: return {cls:"status-resched", text:"तय है"};
+    }
+  }
+
+  /* =================== AUTH =================== */
+  var selectedLoginRole = "agent";
+  document.querySelectorAll("#role-toggle button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll("#role-toggle button").forEach(function(b){b.classList.remove("active");});
+      btn.classList.add("active");
+      selectedLoginRole = btn.getAttribute("data-role");
+    });
+  });
+
+  document.getElementById("login-form").addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    var email = document.getElementById("auth-email").value.trim();
+    var pass = document.getElementById("auth-password").value;
+    var errEl = document.getElementById("auth-error");
+    var btn = document.getElementById("auth-submit-btn");
+    errEl.textContent = "";
+    btn.disabled = true; btn.textContent = "जाँच हो रही है...";
+    try{
+      var cred = await signInWithEmailAndPassword(auth, email, pass);
+      var profileSnap = await getDoc(doc(db, "users", cred.user.uid));
+      if(!profileSnap.exists()){
+        errEl.textContent = "आपका प्रोफ़ाइल नहीं मिला। एडमिन से संपर्क करें।";
+        await signOut(auth);
+        return;
+      }
+      var profile = profileSnap.data();
+      if(profile.active === false){
+        errEl.textContent = "यह अकाउंट निष्क्रिय कर दिया गया है। एडमिन से संपर्क करें।";
+        await signOut(auth);
+        return;
+      }
+      if(profile.role !== selectedLoginRole){
+        errEl.textContent = "आपने \""+(selectedLoginRole==="admin"?"एडमिन":"एजेंट")+"\" चुना है, पर आपका अकाउंट \""+(profile.role==="admin"?"एडमिन":"एजेंट")+"\" है। सही टैब चुनें।";
+        await signOut(auth);
+        return;
+      }
+      // success — onAuthStateChanged will take over
+    }catch(e){
+      console.error(e);
+      errEl.textContent = "लॉगिन नहीं हुआ — ईमेल/पासवर्ड जांचें।";
+    }finally{
+      btn.disabled = false; btn.textContent = "लॉगिन करें";
+    }
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", function(){
+    signOut(auth);
+  });
+
+  onAuthStateChanged(auth, async function(user){
+    if(unsubscribeVisits){ unsubscribeVisits(); unsubscribeVisits = null; }
+    if(unsubscribeAgents){ unsubscribeAgents(); unsubscribeAgents = null; }
+    if(!user){
+      currentUser = null;
+      document.getElementById("auth-screen").style.display = "flex";
+      document.getElementById("hidden-shell").style.display = "none";
+      document.getElementById("auth-email").value = "";
+      document.getElementById("auth-password").value = "";
+      return;
+    }
+    var profileSnap = await getDoc(doc(db, "users", user.uid));
+    if(!profileSnap.exists() || profileSnap.data().active === false){
+      // shouldn't normally reach here (handled at login), but guard anyway
+      signOut(auth);
+      return;
+    }
+    var profile = profileSnap.data();
+    currentUser = { uid: user.uid, email: user.email, name: profile.name || user.email, role: profile.role, area: profile.area || "" };
+
+    document.getElementById("auth-screen").style.display = "none";
+    document.getElementById("hidden-shell").style.display = "block";
+    document.getElementById("role-badge-el").textContent = currentUser.role === "admin" ? "एडमिन" : "एजेंट";
+    document.getElementById("role-badge-el").className = "role-badge " + (currentUser.role === "admin" ? "admin" : "");
+    document.getElementById("user-name-el").textContent = currentUser.name;
+    document.getElementById("tab-agents").style.display = currentUser.role === "admin" ? "" : "none";
+    document.getElementById("agent-filter-today").style.display = currentUser.role === "admin" ? "" : "none";
+    document.getElementById("agent-filter-list").style.display = currentUser.role === "admin" ? "" : "none";
+
+    selectedAgentFilter = "all";
+    firstSnapshotReceived = false;
+    subscribeVisits();
+    if(currentUser.role === "admin"){
+      subscribeAgents();
+    }
+    switchTab("today");
+  });
+
+  /* =================== VISITS SUBSCRIPTION =================== */
+  function subscribeVisits(){
+    if(unsubscribeVisits) unsubscribeVisits();
+    var q;
+    if(currentUser.role === "admin"){
+      q = query(visitsCol, orderBy("date","desc"));
+    } else {
+      q = query(visitsCol, where("agentUid","==",currentUser.uid), orderBy("date","desc"));
+    }
+    unsubscribeVisits = onSnapshot(q, function(snapshot){
+      entries = snapshot.docs.map(function(d){ var x = d.data(); x.id = d.id; return x; });
+      firstSnapshotReceived = true;
+      renderToday();
+      renderList(document.getElementById("search-input").value);
+    }, function(err){
+      console.error("visits सुनने में त्रुटि:", err);
+      showToast("⚠️ डेटा सिंक में समस्या — Firestore इंडेक्स/नियम जांचें");
+    });
+  }
+
+  function subscribeAgents(){
+    if(unsubscribeAgents) unsubscribeAgents();
+    var q = query(usersCol, where("role","==","agent"));
+    unsubscribeAgents = onSnapshot(q, function(snapshot){
+      agentsDirectory = snapshot.docs.map(function(d){ var x = d.data(); x.uid = d.id; return x; });
+      renderAgentFilters();
+      renderAgentsList();
+    }, function(err){
+      console.error("agents सुनने में त्रुटि:", err);
+    });
+  }
+
+  function renderAgentFilters(){
+    [ "agent-filter-today", "agent-filter-list" ].forEach(function(id){
+      var sel = document.getElementById(id);
+      var current = sel.value || "all";
+      sel.innerHTML = '<option value="all">सभी एजेंट</option>' +
+        agentsDirectory.map(function(a){
+          return '<option value="'+a.uid+'">'+escapeHTML(a.name)+(a.area?(" — "+escapeHTML(a.area)):"")+'</option>';
+        }).join("");
+      sel.value = current;
+    });
+  }
+  document.getElementById("agent-filter-today").addEventListener("change", function(){
+    selectedAgentFilter = this.value; document.getElementById("agent-filter-list").value = this.value; renderToday(); renderList(document.getElementById("search-input").value);
+  });
+  document.getElementById("agent-filter-list").addEventListener("change", function(){
+    selectedAgentFilter = this.value; document.getElementById("agent-filter-today").value = this.value; renderToday(); renderList(document.getElementById("search-input").value);
+  });
+
+  function visibleEntries(){
+    if(currentUser.role !== "admin" || selectedAgentFilter === "all") return entries;
+    return entries.filter(function(e){ return e.agentUid === selectedAgentFilter; });
+  }
+
+  /* =================== TABS =================== */
+  var tabBtns = document.querySelectorAll(".tab-btn");
+  var views = {
+    today: document.getElementById("view-today"),
+    add: document.getElementById("view-add"),
+    list: document.getElementById("view-list"),
+    agents: document.getElementById("view-agents")
+  };
+  function switchTab(name){
+    tabBtns.forEach(function(b){ b.classList.toggle("active", b.dataset.view === name); });
+    Object.keys(views).forEach(function(k){ views[k].classList.toggle("active", k===name); });
+    if(name === "today") renderToday();
+    if(name === "list") renderList(document.getElementById("search-input").value);
+    if(name === "add" && !document.getElementById("edit-id").value) resetForm();
+  }
+  tabBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){ switchTab(btn.dataset.view); });
+  });
+
+  /* =================== RENDER: TODAY =================== */
+  function groupByVillage(list){
+    var groups = {};
+    list.forEach(function(e){ (groups[e.village] = groups[e.village] || []).push(e); });
+    return groups;
+  }
+
+  function personCardHTML(e){
+    var telHref = e.mobile ? ("tel:"+e.mobile.replace(/\s+/g,"")) : "";
+    var metaBits = [];
+    if(e.father) metaBits.push("पिता: "+escapeHTML(e.father));
+    if(e.mobile) metaBits.push("📞 "+escapeHTML(e.mobile));
+    if(e.spouse) metaBits.push("पति/पत्नी: "+escapeHTML(e.spouse));
+    if(e.address) metaBits.push("पता: "+escapeHTML(e.address));
+    var st = statusLabel(e.status);
+    var moneyBits = [];
+    if(e.loanAmount) moneyBits.push("लोन: <span class=\"amt\">"+fmtMoney(e.loanAmount)+"</span>");
+    if(e.emi) moneyBits.push("EMI: <span class=\"amt\">"+fmtMoney(e.emi)+"</span>");
+    return (
+      '<div class="person-card">'+
+        '<div>'+
+          '<div class="pname">'+escapeHTML(e.name)+(currentUser.role==="admin" && e.agentName ? ' <span class="agent-tag">· '+escapeHTML(e.agentName)+'</span>' : '')+'</div>'+
+          '<div class="pmeta">'+metaBits.join(" · ")+'</div>'+
+          (moneyBits.length ? '<div class="pmeta">'+moneyBits.join(" · ")+'</div>' : '')+
+          (e.notes ? '<div class="pmeta">📝 '+escapeHTML(e.notes)+'</div>' : '')+
+        '</div>'+
+        '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">'+
+          '<span class="status-tag '+st.cls+'">'+st.text+'</span>'+
+          (typeof e.loans !== "undefined" && e.loans !== "" ? '<span class="loan-tag">'+escapeHTML(String(e.loans))+' लोन</span>' : '')+
+          (telHref ? '<a class="call-btn" href="'+telHref+'">📞</a>' : '')+
+        '</div>'+
+      '</div>'
+    );
+  }
+
+  function renderToday(){
+    if(!currentUser) return;
+    var vis = visibleEntries();
+    var today = todayISO();
+    var todayEntries = vis.filter(function(e){ return e.date === today; });
+    var futureEntries = vis.filter(function(e){ return e.date > today; }).sort(function(a,b){ return a.date.localeCompare(b.date); });
+
+    document.getElementById("today-date-label").textContent = formatDateHuman(today);
+    document.getElementById("today-people-count").textContent = todayEntries.length;
+    var todayVillages = {}; todayEntries.forEach(function(e){ todayVillages[e.village]=true; });
+    document.getElementById("today-village-count").textContent = Object.keys(todayVillages).length;
+    var emiTotal = todayEntries.reduce(function(sum,e){ return sum + (Number(e.emi)||0); }, 0);
+    document.getElementById("today-emi-total").textContent = fmtMoney(emiTotal);
+
+    var groupsEl = document.getElementById("today-groups");
+    if(!firstSnapshotReceived){
+      groupsEl.innerHTML = '<div class="empty-state">डेटा लोड हो रहा है...</div>';
+    } else if(todayEntries.length === 0){
+      groupsEl.innerHTML = '<div class="empty-state">आज के लिए कोई मुलाक़ात तय नहीं है।<br>"जोड़ें" टैब से नई एंट्री डालें।</div>';
+    } else {
+      var groups = groupByVillage(todayEntries);
+      groupsEl.innerHTML = Object.keys(groups).sort().map(function(v){
+        var people = groups[v];
+        return '<div class="village-group"><div class="village-head"><span class="vname">📍 '+escapeHTML(v)+'</span><span class="vcount">'+people.length+' लोग</span></div>'+people.map(personCardHTML).join("")+'</div>';
+      }).join("");
+    }
+
+    var upcomingEl = document.getElementById("upcoming-groups");
+    if(futureEntries.length === 0){
+      upcomingEl.innerHTML = '<div class="empty-state">कोई आगे की मुलाक़ात दर्ज नहीं है।</div>';
+    } else {
+      var byDate = {};
+      futureEntries.forEach(function(e){ (byDate[e.date] = byDate[e.date] || []).push(e); });
+      upcomingEl.innerHTML = Object.keys(byDate).sort().map(function(d){
+        var people = byDate[d];
+        var villages = {}; people.forEach(function(e){ villages[e.village]=true; });
+        return '<div class="village-group"><div class="village-head"><span class="vname">🗓️ '+formatDateHuman(d)+'</span><span class="vcount">'+people.length+' लोग · '+Object.keys(villages).length+' गाँव</span></div>'+people.map(personCardHTML).join("")+'</div>';
+      }).join("");
+    }
+  }
+
+  /* =================== FORM (ADD/EDIT VISIT) =================== */
+  var form = document.getElementById("entry-form");
+  var editIdInput = document.getElementById("edit-id");
+
+  function resetForm(){
+    form.reset();
+    editIdInput.value = "";
+    document.getElementById("f-date").value = todayISO();
+    document.getElementById("f-status").value = "pending";
+    document.getElementById("submit-btn").textContent = "सेव करें";
+  }
+
+  form.addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    var name = document.getElementById("f-name").value.trim();
+    var village = document.getElementById("f-village").value.trim();
+    var date = document.getElementById("f-date").value;
+    if(!name || !village || !date){ showToast("⚠️ नाम, गाँव और तारीख भरना ज़रूरी है"); return; }
+    var data = {
+      name: name,
+      father: document.getElementById("f-father").value.trim(),
+      village: village,
+      mobile: document.getElementById("f-mobile").value.trim(),
+      address: document.getElementById("f-address").value.trim(),
+      spouse: document.getElementById("f-spouse").value.trim(),
+      loans: document.getElementById("f-loans").value.trim(),
+      loanAmount: Number(document.getElementById("f-loan-amount").value)||0,
+      emi: Number(document.getElementById("f-emi").value)||0,
+      status: document.getElementById("f-status").value,
+      date: date,
+      notes: document.getElementById("f-notes").value.trim(),
+      agentUid: currentUser.uid,
+      agentName: currentUser.name
+    };
+    var editId = editIdInput.value;
+    var btn = document.getElementById("submit-btn");
+    btn.disabled = true; btn.textContent = "सेव हो रहा है...";
+    try{
+      if(editId){
+        await updateDoc(doc(db, "visits", editId), data);
+        showToast("✅ एंट्री अपडेट हो गई");
+      } else {
+        await addDoc(visitsCol, data);
+        showToast("✅ एंट्री सेव हो गई");
+      }
+      resetForm();
+      switchTab("today");
+    }catch(e){
+      console.error(e);
+      showToast("⚠️ सेव नहीं हो सका — नियम/इंटरनेट जांचें");
+    }finally{
+      btn.disabled = false; btn.textContent = editId ? "बदलाव सेव करें" : "सेव करें";
+    }
+  });
+
+  /* =================== LIST / SEARCH / EDIT / DELETE =================== */
+  function renderList(filter){
+    var listEl = document.getElementById("all-list");
+    if(!currentUser) return;
+    if(!firstSnapshotReceived){ listEl.innerHTML = '<div class="empty-state">डेटा लोड हो रहा है...</div>'; return; }
+    var f = (filter||"").trim().toLowerCase();
+    var sorted = visibleEntries().slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+    var filtered = sorted.filter(function(e){
+      if(!f) return true;
+      return (e.name && e.name.toLowerCase().indexOf(f)>-1) ||
+             (e.village && e.village.toLowerCase().indexOf(f)>-1) ||
+             (e.mobile && e.mobile.toLowerCase().indexOf(f)>-1);
+    });
+    if(filtered.length === 0){ listEl.innerHTML = '<div class="empty-state">कोई रिकॉर्ड नहीं मिला।</div>'; return; }
+
+    listEl.innerHTML = filtered.map(function(e){
+      var st = statusLabel(e.status);
+      var metaBits = ["गाँव: "+escapeHTML(e.village)];
+      if(e.father) metaBits.push("पिता: "+escapeHTML(e.father));
+      if(e.mobile) metaBits.push("📞 "+escapeHTML(e.mobile));
+      if(e.loanAmount) metaBits.push("लोन: "+fmtMoney(e.loanAmount));
+      if(e.emi) metaBits.push("EMI: "+fmtMoney(e.emi));
+      metaBits.push("तारीख: "+formatDateHuman(e.date));
+      if(currentUser.role==="admin" && e.agentName) metaBits.push("एजेंट: "+escapeHTML(e.agentName));
+      return (
+        '<div class="list-row">'+
+          '<div class="info">'+
+            '<div class="name-line">'+escapeHTML(e.name)+' <span class="status-tag '+st.cls+'">'+st.text+'</span></div>'+
+            '<div class="meta-line">'+metaBits.join(" · ")+'</div>'+
+          '</div>'+
+          '<div class="row-actions">'+
+            '<button class="icon-btn" data-edit="'+e.id+'">✏️</button>'+
+            '<button class="icon-btn danger" data-del="'+e.id+'">🗑️</button>'+
+          '</div>'+
+        '</div>'
+      );
+    }).join("");
+
+    listEl.querySelectorAll("[data-edit]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var id = btn.getAttribute("data-edit");
+        var e = entries.find(function(x){ return x.id === id; });
+        if(!e) return;
+        document.getElementById("f-name").value = e.name || "";
+        document.getElementById("f-father").value = e.father || "";
+        document.getElementById("f-village").value = e.village || "";
+        document.getElementById("f-mobile").value = e.mobile || "";
+        document.getElementById("f-address").value = e.address || "";
+        document.getElementById("f-spouse").value = e.spouse || "";
+        document.getElementById("f-loans").value = e.loans || "";
+        document.getElementById("f-loan-amount").value = e.loanAmount || "";
+        document.getElementById("f-emi").value = e.emi || "";
+        document.getElementById("f-status").value = e.status || "pending";
+        document.getElementById("f-date").value = e.date || todayISO();
+        document.getElementById("f-notes").value = e.notes || "";
+        editIdInput.value = id;
+        document.getElementById("submit-btn").textContent = "बदलाव सेव करें";
+        switchTab("add");
+      });
+    });
+    listEl.querySelectorAll("[data-del]").forEach(function(btn){
+      btn.addEventListener("click", async function(){
+        var id = btn.getAttribute("data-del");
+        if(!confirm("क्या आप यह एंट्री हटाना चाहते हैं?")) return;
+        try{
+          await deleteDoc(doc(db, "visits", id));
+          showToast("🗑️ एंट्री हटा दी गई");
+        }catch(e){
+          console.error(e);
+          showToast("⚠️ हटाने में समस्या");
+        }
+      });
+    });
+  }
+  document.getElementById("search-input").addEventListener("input", function(){ renderList(this.value); });
+
+  /* =================== ADMIN: MANAGE AGENTS =================== */
+  document.getElementById("agent-form").addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    var errEl = document.getElementById("agent-form-error");
+    errEl.textContent = "";
+    var name = document.getElementById("a-name").value.trim();
+    var email = document.getElementById("a-email").value.trim();
+    var password = document.getElementById("a-password").value;
+    var area = document.getElementById("a-area").value.trim();
+    if(!name || !email || password.length < 6){
+      errEl.textContent = "नाम, ईमेल भरें और पासवर्ड कम से कम 6 अंक का हो।";
+      return;
+    }
+    var btn = document.getElementById("agent-submit-btn");
+    btn.disabled = true; btn.textContent = "बनाया जा रहा है...";
+    try{
+      var newUserCred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+      var newUid = newUserCred.user.uid;
+      await setDoc(doc(db, "users", newUid), {
+        name: name, email: email, role: "agent", area: area, active: true, createdAt: Date.now()
+      });
+      await signOut(secondaryAuth); // clean up secondary session, admin session untouched
+      showToast("✅ एजेंट बन गया — "+name);
+      document.getElementById("agent-form").reset();
+    }catch(e){
+      console.error(e);
+      if(e.code === "auth/email-already-in-use") errEl.textContent = "यह ईमेल पहले से इस्तेमाल हो रहा है।";
+      else errEl.textContent = "एजेंट नहीं बन सका — दोबारा कोशिश करें।";
+    }finally{
+      btn.disabled = false; btn.textContent = "एजेंट बनाएं";
+    }
+  });
+
+  function renderAgentsList(){
+    var el = document.getElementById("agents-list");
+    if(agentsDirectory.length === 0){ el.innerHTML = '<div class="empty-state">अभी कोई एजेंट नहीं बना है।</div>'; return; }
+    el.innerHTML = agentsDirectory.map(function(a){
+      var isActive = a.active !== false;
+      return (
+        '<div class="agent-row">'+
+          '<div>'+
+            '<div class="aname">'+escapeHTML(a.name)+'</div>'+
+            '<div class="ameta">'+escapeHTML(a.email)+(a.area?(" · "+escapeHTML(a.area)):"")+'</div>'+
+          '</div>'+
+          '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">'+
+            '<span class="astatus '+(isActive?"active":"inactive")+'">'+(isActive?"सक्रिय":"निष्क्रिय")+'</span>'+
+            '<button class="toggle-btn" data-toggle="'+a.uid+'" data-current="'+isActive+'">'+(isActive?"निष्क्रिय करें":"सक्रिय करें")+'</button>'+
+          '</div>'+
+        '</div>'
+      );
+    }).join("");
+    el.querySelectorAll("[data-toggle]").forEach(function(btn){
+      btn.addEventListener("click", async function(){
+        var uid = btn.getAttribute("data-toggle");
+        var isCurrentlyActive = btn.getAttribute("data-current") === "true";
+        try{
+          await updateDoc(doc(db, "users", uid), { active: !isCurrentlyActive });
+          showToast(isCurrentlyActive ? "🚫 एजेंट निष्क्रिय किया गया" : "✅ एजेंट फिर सक्रिय किया गया");
+        }catch(e){
+          console.error(e);
+          showToast("⚠️ बदलाव नहीं हो सका");
+        }
+      });
+    });
+  }
+
+  resetForm();
+})();
+</script>
+
+</body>
+</html>
